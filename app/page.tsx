@@ -350,7 +350,7 @@ export default function Portfolio() {
                 </CardContent>
               </Card>
             </motion.div>
-
+            {/* 
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -382,7 +382,7 @@ export default function Portfolio() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </motion.div> */}
           </div>
         </div>
       </section>
