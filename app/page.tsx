@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -24,6 +24,22 @@ import {
   Globe,
   Brain,
 } from "lucide-react"
+import translations from "@/lib/i18n"
+
+function LanguageSwitcher({ lang, setLang }: { lang: 'en' | 'tr'; setLang: (l: 'en' | 'tr') => void }) {
+  return (
+    <div className="fixed top-6 right-6 z-50">
+      <select
+        value={lang}
+        onChange={e => setLang(e.target.value as 'en' | 'tr')}
+        className="bg-gray-900/80 border border-gray-700 text-white px-3 py-1 rounded shadow focus:outline-none"
+      >
+        <option value="en">English</option>
+        <option value="tr">Türkçe</option>
+      </select>
+    </div>
+  )
+}
 
 export default function Portfolio() {
   const [isSecretMode, setIsSecretMode] = useState(false)
@@ -99,8 +115,47 @@ export default function Portfolio() {
     },
   ]
 
+  const [form, setForm] = useState({ name: "", email: "", message: "" })
+  const [sending, setSending] = useState(false)
+  const [lang, setLang] = useState<'en' | 'tr'>("en")
+  const t = translations[lang]
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setSending(true)
+    try {
+      const response = await fetch("https://formspree.io/f/myzjprgj", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          message: form.message,
+        }),
+      })
+      if (response.ok) {
+        alert(t.messageSent)
+        setForm({ name: "", email: "", message: "" })
+      } else {
+        alert(t.messageError)
+      }
+    } catch (error) {
+      alert(t.messageError)
+    }
+    setSending(false)
+  }
+
   return (
     <div className="min-h-screen bg-[#121212] text-white overflow-x-hidden">
+      <LanguageSwitcher lang={lang} setLang={setLang} />
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center px-4">
         <motion.div
@@ -117,7 +172,7 @@ export default function Portfolio() {
           >
             <div className="relative">
               <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400 bg-clip-text text-transparent">
-                Hi, I'm Emir
+                {t.hi}
               </h1>
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
@@ -129,23 +184,20 @@ export default function Portfolio() {
             </div>
 
             <p className="text-xl md:text-2xl text-gray-300 font-light">
-              Flutter Developer 🚀 | Mobile App Enthusiast 📱
+              {t.heroDesc}
             </p>
 
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              Passionate mobile developer from Turkey with 2.5+ years of Flutter experience, building fast, beautiful,
-              and functional apps that users love.
+              {t.heroSub}
             </p>
 
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-                onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                <Zap className="mr-2 h-5 w-5" />✨ View My Work
-              </Button>
-            </motion.div>
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              <Zap className="mr-2 h-5 w-5" />{t.viewWork}
+            </Button>
           </motion.div>
         </div>
 
@@ -177,7 +229,7 @@ export default function Portfolio() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-              About Me
+              {t.aboutMe}
             </h2>
           </motion.div>
 
@@ -208,13 +260,10 @@ export default function Portfolio() {
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardContent className="p-8">
                   <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                    I'm a passionate mobile app developer from Turkey with experience building fast, beautiful, and
-                    functional Flutter apps. After a short break exploring life from a different angle, I'm back coding
-                    full-time and better than ever.
+                    {t.aboutMeDesc1}
                   </p>
                   <p className="text-gray-400">
-                    Currently based in Bursa/Istanbul/Izmir and open to both remote and on-site opportunities. I love
-                    turning ideas into reality through clean, efficient code.
+                    {t.aboutMeDesc2}
                   </p>
                 </CardContent>
               </Card>
@@ -228,23 +277,107 @@ export default function Portfolio() {
             >
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h3 className="text-xl font-semibold mb-6 text-blue-400">Fun Facts About Me</h3>
+                  <h3 className="text-xl font-semibold mb-6 text-blue-400">
+                    {t.funFacts}
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 text-gray-300">
                       <Brain className="text-blue-400" size={20} />
-                      <span>Loves learning new tech</span>
+                      <span>{t.lovesLearning}</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-300">
                       <Bike className="text-orange-400" size={20} />
-                      <span>Rides a motorcycle</span>
+                      <span>{t.ridesMotorcycle}</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-300">
                       <Gamepad2 className="text-purple-400" size={20} />
-                      <span>Enjoys console gaming</span>
+                      <span>{t.enjoysGaming}</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-300">
                       <Globe className="text-green-400" size={20} />
-                      <span>Loves exploring new places</span>
+                      <span>{t.lovesExploring}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Projects Section */}
+      <section id="projects" className="py-20 px-4 bg-gray-900/30">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          ></motion.div>
+          <div className="grid md:grid-cols-3 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-orange-500/20 rounded-2xl blur-xl"></div>
+                <img
+                  src="/images/emir-photo.jpg"
+                  alt="Emir Seyhan - Flutter Developer"
+                  className="relative w-64 h-64 object-cover rounded-2xl border-2 border-gray-800 shadow-2xl"
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                <CardContent className="p-8">
+                  <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                    {t.aboutMeDesc1}
+                  </p>
+                  <p className="text-gray-400">
+                    {t.aboutMeDesc2}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                <CardContent className="p-8">
+                  <h3 className="text-xl font-semibold mb-6 text-blue-400">
+                    {t.funFacts}
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-gray-300">
+                      <Brain className="text-blue-400" size={20} />
+                      <span>{t.lovesLearning}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-300">
+                      <Bike className="text-orange-400" size={20} />
+                      <span>{t.ridesMotorcycle}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-300">
+                      <Gamepad2 className="text-purple-400" size={20} />
+                      <span>{t.enjoysGaming}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-300">
+                      <Globe className="text-green-400" size={20} />
+                      <span>{t.lovesExploring}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -265,9 +398,11 @@ export default function Portfolio() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-              Featured Projects
+              {t.featuredProjects}
             </h2>
-            <p className="text-gray-400 text-lg">Some of the amazing apps I've built</p>
+            <p className="text-gray-400 text-lg">
+              {t.featuredProjectsDesc}
+            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8">
@@ -296,13 +431,13 @@ export default function Portfolio() {
                         </Badge>
                       ))}
                     </div>
-                    <Button
+                    {/* <Button
                       variant="outline"
                       className="w-full border-gray-700 hover:border-blue-500 hover:text-blue-400"
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
                       View Details
-                    </Button>
+                    </Button> */}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -322,7 +457,7 @@ export default function Portfolio() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-              Skills & Technologies
+              {t.skills}
             </h2>
           </motion.div>
 
@@ -355,7 +490,7 @@ export default function Portfolio() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-              Experience
+              {t.experience}
             </h2>
           </motion.div>
 
@@ -404,16 +539,19 @@ export default function Portfolio() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-              Resume
+              {t.resume}
             </h2>
             <p className="text-gray-400 text-lg mb-8">
-              Want to know more about my experience? Download my full resume.
+              {t.resumeDesc}
             </p>
             <Button
+              asChild
               size="lg"
               className="bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              <Download className="mr-2 h-5 w-5" />📄 Download My Resume
+              <a href="/Emir_SEYHAN_EN.pdf" download>
+                <Download className="mr-2 h-5 w-5" />{t.downloadResume}
+              </a>
             </Button>
           </motion.div>
         </div>
@@ -434,7 +572,7 @@ export default function Portfolio() {
               onClick={() => setIsSecretMode(!isSecretMode)}
               className="border-gray-700 hover:border-purple-500 hover:text-purple-400 mb-8"
             >
-              👀 Secret Dev Mode
+              {t.secretDevMode}
             </Button>
 
             {isSecretMode && (
@@ -445,9 +583,11 @@ export default function Portfolio() {
                 className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 rounded-2xl p-8 backdrop-blur-sm"
               >
                 <div className="text-6xl mb-4">🔥</div>
-                <h3 className="text-2xl font-bold text-purple-400 mb-4">Ultra Dev Mode Activated!</h3>
+                <h3 className="text-2xl font-bold text-purple-400 mb-4">
+                  {t.ultraDevMode}
+                </h3>
                 <p className="text-lg text-gray-300">
-                  Keep pushing forward, Emir. Greatness is just one commit away 💾🔥
+                  {t.ultraDevDesc}
                 </p>
                 <div className="flex justify-center gap-2 mt-4">
                   <Heart className="text-red-400" size={20} />
@@ -471,9 +611,11 @@ export default function Portfolio() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-              Let's Connect
+              {t.letsConnect}
             </h2>
-            <p className="text-gray-400 text-lg">I don't bite 😄 Let's build something awesome together.</p>
+            <p className="text-gray-400 text-lg">
+              {t.letsConnectDesc}
+            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-12">
@@ -485,24 +627,42 @@ export default function Portfolio() {
             >
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h3 className="text-xl font-semibold mb-6 text-blue-400">Send me a message</h3>
-                  <form className="space-y-4">
-                    <Input placeholder="Your Name" className="bg-gray-800/50 border-gray-700 focus:border-blue-500" />
+                  <h3 className="text-xl font-semibold mb-6 text-blue-400">
+                    {t.sendMeMsg}
+                  </h3>
+                  <form className="space-y-4" onSubmit={handleSubmit}>
                     <Input
-                      type="email"
-                      placeholder="your.email@example.com"
+                      name="name"
+                      placeholder={t.yourName}
                       className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
+                      value={form.name}
+                      onChange={handleChange}
+                      required
+                    />
+                    <Input
+                      name="email"
+                      type="email"
+                      placeholder={t.yourEmail}
+                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
+                      value={form.email}
+                      onChange={handleChange}
+                      required
                     />
                     <Textarea
-                      placeholder="Your message..."
+                      name="message"
+                      placeholder={t.yourMessage}
                       rows={4}
                       className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
+                      value={form.message}
+                      onChange={handleChange}
+                      required
                     />
                     <Button
                       type="submit"
                       className="w-full bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600"
+                      disabled={sending}
                     >
-                      Send Message
+                      {sending ? t.sending : t.sendMessage}
                     </Button>
                   </form>
                 </CardContent>
@@ -518,15 +678,17 @@ export default function Portfolio() {
             >
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <h3 className="text-xl font-semibold mb-6 text-orange-400">Get in touch</h3>
+                  <h3 className="text-xl font-semibold mb-6 text-orange-400">
+                    {t.getInTouch}
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 text-gray-300">
                       <Mail className="text-blue-400" size={20} />
-                      <span>emirseyhana.z@gmail.com</span>
+                      <span>{t.email}</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-300">
                       <MapPin className="text-orange-400" size={20} />
-                      <span>Bursa / Istanbul / Izmir, Turkey</span>
+                      <span>{t.location}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -567,7 +729,7 @@ export default function Portfolio() {
       <footer className="py-8 px-4 border-t border-gray-800">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-gray-400">
-            Made with <Heart className="inline text-red-400" size={16} /> by Emir Seyhan • 2024
+            {t.madeWith} <Heart className="inline text-red-400" size={16} /> {t.by}
           </p>
         </div>
       </footer>
