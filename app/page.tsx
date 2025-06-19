@@ -50,7 +50,7 @@ export default function Portfolio() {
       name: "Turkticaret.Net App",
       description: "E-commerce mobile app with dynamic in-app purchases, published on both Play Store and App Store",
       tech: ["Flutter", "Dart", "Firebase", "REST APIs"],
-      status: "Published",
+      status: "Enterprise",
     },
     {
       name: "In-Flight Commerce Platform",
@@ -536,7 +536,7 @@ export default function Portfolio() {
                 <motion.a
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.95 }}
-                  href="#"
+                  href="https://github.com/EmrSyhn"
                   className="p-4 bg-gray-900/50 border border-gray-800 rounded-full hover:border-blue-500/50 transition-all duration-300"
                 >
                   <Github className="text-gray-400 hover:text-blue-400" size={24} />
@@ -544,7 +544,7 @@ export default function Portfolio() {
                 <motion.a
                   whileHover={{ scale: 1.1, rotate: -5 }}
                   whileTap={{ scale: 0.95 }}
-                  href="#"
+                  href="https://www.linkedin.com/in/emrsyhn/"
                   className="p-4 bg-gray-900/50 border border-gray-800 rounded-full hover:border-blue-500/50 transition-all duration-300"
                 >
                   <Linkedin className="text-gray-400 hover:text-blue-400" size={24} />
